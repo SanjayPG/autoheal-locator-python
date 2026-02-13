@@ -7,7 +7,7 @@ result of AI analysis containing recommended selectors and confidence scores.
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from autoheal.models.element_candidate import ElementCandidate
 from autoheal.models.enums import AutomationFramework
@@ -57,10 +57,7 @@ class AIAnalysisResult(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
     tokens_used: int = Field(default=0, description="Total tokens used in AI API call")
 
-    class Config:
-        """Pydantic model configuration."""
-        use_enum_values = False
-        validate_assignment = True
+    model_config = ConfigDict(use_enum_values=False, validate_assignment=True)
 
     def is_playwright(self) -> bool:
         """

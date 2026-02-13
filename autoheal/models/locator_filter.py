@@ -9,7 +9,7 @@ import re
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class FilterType(Enum):
@@ -57,9 +57,7 @@ class LocatorFilter(BaseModel):
     value: str
     is_regex: bool = False
 
-    class Config:
-        """Pydantic model configuration."""
-        use_enum_values = False
+    model_config = ConfigDict(use_enum_values=False)
 
     def to_javascript_string(self) -> str:
         """

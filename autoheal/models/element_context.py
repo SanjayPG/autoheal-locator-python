@@ -7,7 +7,7 @@ information about an element's position and relationships.
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from autoheal.models.element_fingerprint import ElementFingerprint
 from autoheal.models.position import Position
@@ -45,10 +45,7 @@ class ElementContext(BaseModel):
     text_content: Optional[str] = None
     fingerprint: Optional[ElementFingerprint] = None
 
-    class Config:
-        """Pydantic model configuration."""
-        validate_assignment = True
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(validate_assignment=True, arbitrary_types_allowed=True)
 
     @classmethod
     def builder(cls) -> "ElementContextBuilder":

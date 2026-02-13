@@ -7,7 +7,7 @@ candidate elements with selector and confidence information.
 
 from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ElementCandidate(BaseModel):
@@ -42,10 +42,7 @@ class ElementCandidate(BaseModel):
     context: Optional["ElementContext"] = None
     properties: Dict[str, Any] = Field(default_factory=dict)
 
-    class Config:
-        """Pydantic model configuration."""
-        validate_assignment = True
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(validate_assignment=True, arbitrary_types_allowed=True)
 
 
 # Import after class definition to avoid circular imports

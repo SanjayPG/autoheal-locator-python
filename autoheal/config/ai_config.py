@@ -12,7 +12,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Dict, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from autoheal.models.enums import AIProvider
 
@@ -102,10 +102,7 @@ class AIConfig(BaseModel):
         """Get temperature for DOM analysis (backward compatibility)."""
         return self.temperature_dom
 
-    class Config:
-        """Pydantic model configuration."""
-        use_enum_values = False
-        validate_assignment = True
+    model_config = ConfigDict(use_enum_values=False, validate_assignment=True)
 
     def model_post_init(self, __context) -> None:
         """

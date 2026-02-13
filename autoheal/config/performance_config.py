@@ -9,7 +9,7 @@ import multiprocessing
 from datetime import timedelta
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from autoheal.models.enums import ExecutionStrategy
 
@@ -62,10 +62,7 @@ class PerformanceConfig(BaseModel):
     max_concurrent_requests: int = Field(default=50, ge=1, le=1000)
     execution_strategy: ExecutionStrategy = Field(default=ExecutionStrategy.SEQUENTIAL)
 
-    class Config:
-        """Pydantic model configuration."""
-        use_enum_values = False
-        validate_assignment = True
+    model_config = ConfigDict(use_enum_values=False, validate_assignment=True)
 
     @classmethod
     def builder(cls) -> "PerformanceConfigBuilder":

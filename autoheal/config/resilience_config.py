@@ -7,7 +7,7 @@ circuit breaker, retry logic, and timeout handling.
 
 from datetime import timedelta
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ResilienceConfig(BaseModel):
@@ -45,10 +45,7 @@ class ResilienceConfig(BaseModel):
     retry_max_attempts: int = Field(default=3, ge=0, le=10)
     retry_delay: timedelta = Field(default=timedelta(seconds=1))
 
-    class Config:
-        """Pydantic model configuration."""
-        use_enum_values = False
-        validate_assignment = True
+    model_config = ConfigDict(use_enum_values=False, validate_assignment=True)
 
     @classmethod
     def builder(cls) -> "ResilienceConfigBuilder":

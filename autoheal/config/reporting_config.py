@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ReportingConfig(BaseModel):
@@ -58,9 +58,7 @@ class ReportingConfig(BaseModel):
     output_directory: str = Field(default_factory=lambda: os.getcwd())
     report_name_prefix: str = Field(default="AutoHeal_Report")
 
-    class Config:
-        """Pydantic model configuration."""
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
     @classmethod
     def disabled(cls) -> "ReportingConfig":

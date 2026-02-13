@@ -6,7 +6,7 @@ This module provides configuration options for element location operations.
 
 from datetime import timedelta
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class LocatorOptions(BaseModel):
@@ -47,9 +47,7 @@ class LocatorOptions(BaseModel):
     confidence_threshold: float = Field(default=0.7, ge=0.0, le=1.0)
     max_candidates: int = Field(default=5, ge=1, le=100)
 
-    class Config:
-        """Pydantic model configuration."""
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
     @classmethod
     def default_options(cls) -> "LocatorOptions":

@@ -7,7 +7,7 @@ to locate an element with auto-healing capabilities.
 
 from typing import Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from autoheal.config.locator_options import LocatorOptions
 from autoheal.models.element_context import ElementContext
@@ -48,10 +48,7 @@ class LocatorRequest(BaseModel):
     selenium_by: Optional[Any] = None
     native_locator: Optional[Any] = None
 
-    class Config:
-        """Pydantic model configuration."""
-        validate_assignment = True
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(validate_assignment=True, arbitrary_types_allowed=True)
 
     @classmethod
     def builder(cls) -> "LocatorRequestBuilder":

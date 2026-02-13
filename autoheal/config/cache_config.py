@@ -9,7 +9,7 @@ from datetime import timedelta
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CacheType(Enum):
@@ -81,10 +81,7 @@ class CacheConfig(BaseModel):
     redis_port: int = Field(default=6379, ge=1, le=65535)
     redis_password: Optional[str] = Field(default=None, exclude=True)
 
-    class Config:
-        """Pydantic model configuration."""
-        use_enum_values = False
-        validate_assignment = True
+    model_config = ConfigDict(use_enum_values=False, validate_assignment=True)
 
     @classmethod
     def builder(cls) -> "CacheConfigBuilder":

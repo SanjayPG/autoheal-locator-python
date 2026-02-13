@@ -9,7 +9,7 @@ import re
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from autoheal.models.locator_filter import LocatorFilter
 
@@ -80,9 +80,7 @@ class PlaywrightLocator(BaseModel):
     options: Dict[str, Any] = Field(default_factory=dict)
     filters: List[LocatorFilter] = Field(default_factory=list)
 
-    class Config:
-        """Pydantic model configuration."""
-        use_enum_values = False
+    model_config = ConfigDict(use_enum_values=False)
 
     def has_filters(self) -> bool:
         """Check if this locator has filters applied."""

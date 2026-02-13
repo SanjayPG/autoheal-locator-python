@@ -7,7 +7,7 @@ fingerprints to identify elements across page changes.
 
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from autoheal.models.position import Position
 
@@ -47,9 +47,7 @@ class ElementFingerprint(BaseModel):
     nearby_elements: List[str] = Field(default_factory=list)
     visual_hash: Optional[str] = None
 
-    class Config:
-        """Pydantic model configuration."""
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
     def calculate_similarity(self, other: "ElementFingerprint") -> float:
         """

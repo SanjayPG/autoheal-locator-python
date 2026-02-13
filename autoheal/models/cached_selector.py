@@ -9,7 +9,7 @@ import threading
 from datetime import datetime, timezone
 from typing import Optional
 
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
 from autoheal.models.element_fingerprint import ElementFingerprint
 
@@ -52,10 +52,7 @@ class CachedSelector(BaseModel):
     # Thread-safe counters (not serialized) - use PrivateAttr for Pydantic v2
     _lock: threading.Lock = PrivateAttr(default_factory=threading.Lock)
 
-    class Config:
-        """Pydantic model configuration."""
-        validate_assignment = True
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(validate_assignment=True, arbitrary_types_allowed=True)
 
     def record_usage(self, success: bool) -> None:
         """

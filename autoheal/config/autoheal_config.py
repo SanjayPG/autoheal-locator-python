@@ -7,7 +7,7 @@ sub-configurations for the AutoHeal locator system.
 
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from autoheal.config.ai_config import AIConfig
 from autoheal.config.cache_config import CacheConfig
@@ -56,9 +56,7 @@ class AutoHealConfiguration(BaseModel):
     resilience_config: ResilienceConfig = Field(default_factory=ResilienceConfig)
     reporting_config: ReportingConfig = Field(default_factory=ReportingConfig)
 
-    class Config:
-        """Pydantic model configuration."""
-        validate_assignment = True
+    model_config = ConfigDict(validate_assignment=True)
 
     def model_post_init(self, __context) -> None:
         """

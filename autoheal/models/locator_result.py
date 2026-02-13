@@ -8,7 +8,7 @@ result of an element location operation.
 from datetime import timedelta
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from autoheal.models.enums import LocatorStrategy
 
@@ -50,10 +50,7 @@ class LocatorResult(BaseModel):
     reasoning: Optional[str] = None
     tokens_used: int = Field(default=0, description="Total tokens used in AI API calls")
 
-    class Config:
-        """Pydantic model configuration."""
-        validate_assignment = True
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(validate_assignment=True, arbitrary_types_allowed=True)
 
     @classmethod
     def builder(cls) -> "LocatorResultBuilder":
