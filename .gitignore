@@ -158,8 +158,9 @@ autohealcore__init__.py
 
 # Cache files
 *.cache
-cache/
 .cache/
+# Only ignore cache data dirs at root level, not source code
+/cache/
 
 # Reports
 reports/
