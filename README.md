@@ -1,22 +1,52 @@
-# AutoHeal Locator — Python Edition
+# AutoHeal Locator — Python
 
+[![PyPI version](https://img.shields.io/pypi/v/autoheal-locator.svg)](https://pypi.org/project/autoheal-locator/)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Selenium](https://img.shields.io/badge/Selenium-4.x-green.svg)](https://www.selenium.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Async](https://img.shields.io/badge/async-native-green.svg)](https://docs.python.org/3/library/asyncio.html)
 
-**AI-powered test automation library that automatically heals broken locators for both Selenium and Playwright.** When your element locators break due to UI changes, AutoHeal intelligently finds the elements using DOM analysis, visual recognition, and smart fallback strategies.
+**AI-powered test automation library that automatically heals broken locators for Selenium and Playwright.**
 
-> **Python port** of the original [Java AutoHeal Locator](https://github.com/SanjayPG/autoheal-locator). All features have been re-implemented in idiomatic Python with async/await support.
+When element selectors break due to UI changes, AutoHeal finds the elements using DOM analysis, visual recognition, and smart fallback strategies — with results cached so AI is called only once per broken selector.
+
+> Python port of the original [Java AutoHeal Locator](https://github.com/SanjayPG/autoheal-locator).
+
+---
+
+## Quick Start
+
+**New here?** See **[START_HERE.md](START_HERE.md)** first — it guides you to the right place based on what you want to do.
+
+```bash
+# Selenium project
+pip install autoheal-locator
+
+# Playwright project
+pip install autoheal-locator[playwright]
+
+# With Redis cache support
+pip install autoheal-locator[redis]
+
+# Everything
+pip install autoheal-locator[all]
+```
+
+---
+
+## Demo Projects
+
+| Project | Framework | Link |
+|---|---|---|
+| Selenium demo | Selenium + Python | [autoheal-selenium-python-demo](https://github.com/SanjayPG/autoheal-selenium-python-demo) |
+| Playwright demo | Playwright + Python | [playwright-autoheal-python-demo](https://github.com/SanjayPG/playwright-autoheal-python-demo) |
+
+Both demos include a `START_HERE.md` with full step-by-step setup instructions.
 
 ---
 
 ## Table of Contents
 
-- [Framework Comparison](#framework-comparison)
 - [How It Works](#how-it-works)
 - [Key Features](#key-features)
-- [Installation](#installation)
 - [Selenium Quick Start](#selenium-quick-start)
 - [Playwright Quick Start](#playwright-quick-start)
 - [AI Provider Configuration](#ai-provider-configuration)
@@ -32,25 +62,7 @@
 
 ---
 
-## Framework Comparison
-
-| Feature | Selenium | Playwright |
-|---------|----------|-----------|
-| **Locator Types** | CSS, XPath, ID, Name, Class, Tag, Link Text | `get_by_role`, `get_by_text`, `get_by_placeholder`, CSS, XPath |
-| **AutoHeal Support** | Full | Coming Soon |
-| **Filter Support** | N/A | `has_text`, `has_not_text`, `has`, `has_not` |
-| **Native Objects** | `WebElement` | `Locator` |
-| **Zero-Rewrite** | Requires wrapper | Native locators work directly |
-| **Visual Analysis** | Supported | Supported |
-| **DOM Analysis** | Supported | Framework-aware |
-| **Caching** | Unified cache | Unified cache |
-| **Async API** | `find_element_async()` | `find_async()` |
-
----
-
 ## How It Works
-
-When a test calls `find_element()`, AutoHeal follows this sequence:
 
 ```
 Test calls find_element("#selector", "description")
@@ -63,14 +75,12 @@ Test calls find_element("#selector", "description")
          │ Not found (quick timeout)
          ▼
 ┌─────────────────────┐
-│  2. Check Cache     │──── Cache hit ► Try cached selector ──► Return element
-│                     │
+│  2. Check Cache     │──── Hit ──────► Try cached selector ──► Return element
 └─────────────────────┘
          │ Cache miss
          ▼
 ┌─────────────────────┐
 │  3. AI Healing      │
-│  (per strategy)     │
 │  · DOM Analysis     │──── Found ────► Cache result ──► Return element
 │  · Visual Analysis  │
 └─────────────────────┘
@@ -88,41 +98,29 @@ Test calls find_element("#selector", "description")
 
 ## Key Features
 
-- **AI-Powered Healing** — Uses DOM analysis and visual recognition to find relocated elements
-- **Multiple AI Providers** — Groq (free), Gemini, OpenAI, Anthropic, DeepSeek, Grok, Local (Ollama/LM Studio)
+- **AI-Powered Healing** — DOM analysis and visual recognition to find relocated elements
+- **Multiple AI Providers** — Groq (free), Gemini, OpenAI, Anthropic, DeepSeek, Local (Ollama/LM Studio)
 - **Flexible Strategies** — SMART_SEQUENTIAL, DOM_ONLY, VISUAL_FIRST, SEQUENTIAL, PARALLEL
 - **Smart Caching** — Persistent file, in-memory, Redis, or no cache
-- **Both Sync and Async APIs** — `find_element()` and `find_element_async()`
-- **Selenium Support** — Full support for CSS, XPath, ID, Name, Class, Tag selectors
-- **Playwright Support** — Coming soon
-- **HTML / JSON Reports** — Detailed healing reports per test session
+- **Sync and Async APIs** — `find_element()` and `find_element_async()`
+- **Selenium Support** — CSS, XPath, ID, Name, Class, Tag selectors
+- **Playwright Support** — CSS selectors, XPath, and native Playwright Locators (`get_by_role`, `get_by_text`, etc.)
+- **HTML / JSON / Text Reports** — Detailed healing reports per test session
 - **pytest-Ready** — Drop-in fixture pattern, no test rewrites needed
 
 ---
 
-## Installation
+## Framework Comparison
 
-```bash
-# Basic
-pip install autoheal-locator
-
-# With Selenium support
-pip install autoheal-locator[selenium]
-
-# With Redis cache support
-pip install autoheal-locator[redis]
-
-# Everything
-pip install autoheal-locator[all]
-```
-
-### From Source
-
-```bash
-git clone https://github.com/SanjayPG/autoheal-locator-python.git
-cd autoheal-locator-python
-pip install -e .
-```
+| Feature | Selenium | Playwright |
+|---------|----------|-----------|
+| Locator types | CSS, XPath, ID, Name, Class, Tag, Link Text | CSS, XPath, `get_by_role`, `get_by_text`, `get_by_placeholder`, etc. |
+| Native objects | `WebElement` | `Locator` |
+| Sync API | `find_element()` | — |
+| Async API | `find_element_async()` | `find_element_async()`, `find_async()` |
+| Visual analysis | Supported | Supported |
+| DOM analysis | Supported | Supported |
+| Caching | Unified cache | Unified cache |
 
 ---
 
@@ -130,25 +128,16 @@ pip install -e .
 
 ### 1. Set Your API Key
 
-Use a `.env` file in your project root. AutoHeal detects which provider to use based on which key is set — **configure only one**.
-
 ```bash
-# .env — Groq is FREE and the fastest option
+# .env — Groq is FREE and the fastest option to get started
 GROQ_API_KEY=gsk_your_api_key_here
 ```
 
-> Get a free key at [console.groq.com](https://console.groq.com) — no credit card required.
+Get a free key at [console.groq.com](https://console.groq.com) — no credit card required.
 
-Load it in your tests with `python-dotenv`:
+### 2. Before and After
 
-```python
-from dotenv import load_dotenv
-load_dotenv()  # reads .env from project root
-```
-
-### 2. Replace Your WebDriver Code
-
-**Before AutoHeal** — standard Selenium that breaks when the UI changes:
+**Before AutoHeal** — breaks when UI changes:
 
 ```python
 from selenium import webdriver
@@ -156,13 +145,11 @@ from selenium.webdriver.common.by import By
 
 driver = webdriver.Chrome()
 driver.get("https://example.com/login")
-
-# Hard-coded selector — breaks if the developer renames the element
-button = driver.find_element(By.ID, "submit-btn")
+button = driver.find_element(By.ID, "submit-btn")  # breaks if renamed
 button.click()
 ```
 
-**After AutoHeal** — same test, now self-healing:
+**After AutoHeal** — self-healing:
 
 ```python
 from selenium import webdriver
@@ -171,62 +158,49 @@ from autoheal.impl.adapter import SeleniumWebAutomationAdapter
 
 driver = webdriver.Chrome()
 adapter = SeleniumWebAutomationAdapter(driver)
-locator = AutoHealLocator.builder() \
-    .with_web_adapter(adapter) \
-    .build()
+locator = AutoHealLocator.builder().with_web_adapter(adapter).build()
 
 driver.get("https://example.com/login")
-
-# AutoHeal auto-detects the locator type and heals if the selector breaks
-button = locator.find_element("submit-btn", "Submit button")        # ID
-# OR
-button = locator.find_element("#submit-btn", "Submit button")       # CSS
-# OR
-button = locator.find_element("//button[@id='submit-btn']", "Submit button")  # XPath
-
+button = locator.find_element("#submit-btn", "Submit button")  # heals automatically
 button.click()
 ```
 
 ### 3. All Supported Locator Types
 
-AutoHeal automatically detects the locator type from the string format — no `By.ID` / `By.CSS_SELECTOR` needed:
+AutoHeal detects the locator type from the string format — no `By.X` needed:
 
 ```python
-# --- CSS Selectors ---
-locator.find_element("#submit-btn", "Submit button")             # ID shorthand
-locator.find_element(".btn-primary", "Primary button")           # class shorthand
-locator.find_element("button[type='submit']", "Submit button")   # attribute
-locator.find_element("form > input.email", "Email input")        # compound
+# CSS selectors
+locator.find_element("#submit-btn", "Submit button")
+locator.find_element(".btn-primary", "Primary button")
+locator.find_element("button[type='submit']", "Submit button")
+locator.find_element("form > input.email", "Email input")
 
-# --- XPath ---
+# XPath
 locator.find_element("//button[@id='submit']", "Submit button")
 locator.find_element("//input[@placeholder='Username']", "Username field")
 locator.find_element("//a[contains(text(),'Login')]", "Login link")
 
-# --- ID / Name / Class (bare strings) ---
-locator.find_element("submit-btn", "Submit button")              # ID
-locator.find_element("username", "Username field")               # Name attribute
-locator.find_element("btn-primary", "Primary button")            # Class name
+# Bare ID / Name / Class
+locator.find_element("submit-btn", "Submit button")
+locator.find_element("username", "Username field")
 
-# --- Link Text ---
-locator.find_element("Forgot password?", "Forgot password link")
-
-# --- Multiple elements ---
+# Multiple elements
 items = locator.find_elements(".product-card", "Product cards")
-print(f"Found {len(items)} products")
 
-# --- Presence check (no exception thrown) ---
+# Presence check — no exception if missing
 if locator.is_element_present("#promo-banner", "Promo banner"):
-    banner = locator.find_element("#promo-banner", "Promo banner")
-    banner.click()
+    locator.find_element("#promo-banner", "Promo banner").click()
 ```
 
-### 4. Full Selenium Example (Login Test)
+### 4. Full Login Example
 
 ```python
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from autoheal import AutoHealLocator
 from autoheal.impl.adapter import SeleniumWebAutomationAdapter
 from dotenv import load_dotenv
@@ -238,7 +212,8 @@ load_dotenv()
 def driver():
     options = Options()
     options.add_argument("--start-maximized")
-    d = webdriver.Chrome(options=options)
+    service = Service(ChromeDriverManager().install())
+    d = webdriver.Chrome(service=service, options=options)
     d.implicitly_wait(10)
     yield d
     d.quit()
@@ -252,277 +227,162 @@ def autoheal(driver):
 
 def test_login(driver, autoheal):
     driver.get("https://www.saucedemo.com")
-
-    # These selectors will be auto-healed if they ever break
-    username = autoheal.find_element("#user-name", "Username input field")
-    password = autoheal.find_element("#password", "Password input field")
-    submit   = autoheal.find_element("#login-button", "Login submit button")
-
-    username.send_keys("standard_user")
-    password.send_keys("secret_sauce")
-    submit.click()
-
+    autoheal.find_element("#user-name", "Username field").send_keys("standard_user")
+    autoheal.find_element("#password", "Password field").send_keys("secret_sauce")
+    autoheal.find_element("#login-button", "Login button").click()
     assert "/inventory.html" in driver.current_url
 
 
-def test_login_with_broken_selectors(driver, autoheal):
-    """Demonstrates AutoHeal healing intentionally broken selectors."""
+def test_login_broken_selectors(driver, autoheal):
+    """AutoHeal heals intentionally broken selectors."""
     driver.get("https://www.saucedemo.com")
-
-    # Deliberately wrong selectors — AutoHeal will find the real elements
-    username = autoheal.find_element("#user-name-wrong", "Username input field")
-    password = autoheal.find_element("#password-wrong", "Password input field")
-    submit   = autoheal.find_element("#login-button-wrong", "Login submit button")
-
-    username.send_keys("standard_user")
-    password.send_keys("secret_sauce")
-    submit.click()
-
+    autoheal.find_element("#user-name-wrong", "Username field").send_keys("standard_user")
+    autoheal.find_element("#password-wrong", "Password field").send_keys("secret_sauce")
+    autoheal.find_element("#login-button-wrong", "Login button").click()
     assert "/inventory.html" in driver.current_url  # still passes!
-```
-
-### 5. Async Selenium API
-
-For parallel tests or better performance, use the async API:
-
-```python
-import asyncio
-from selenium import webdriver
-from autoheal import AutoHealLocator
-from autoheal.impl.adapter import SeleniumWebAutomationAdapter
-
-async def test_login_async():
-    driver = webdriver.Chrome()
-    adapter = SeleniumWebAutomationAdapter(driver)
-    locator = AutoHealLocator.builder().with_web_adapter(adapter).build()
-
-    try:
-        driver.get("https://example.com/login")
-
-        username = await locator.find_element_async("#username", "Username field")
-        password = await locator.find_element_async("#password", "Password field")
-        submit   = await locator.find_element_async("button[type='submit']", "Submit button")
-
-        username.send_keys("admin")
-        password.send_keys("secret")
-        submit.click()
-
-        logged_in = await locator.is_element_present_async(".dashboard", "Dashboard")
-        assert logged_in
-
-    finally:
-        driver.quit()
-        await locator.shutdown()
-
-asyncio.run(test_login_async())
 ```
 
 ---
 
 ## Playwright Quick Start
 
-> **Status: Coming Soon.** Playwright support is under active development. The API design below reflects the planned interface — it mirrors the Selenium API so migration will be straightforward.
+### 1. Install with Playwright Extra
 
-### Why Playwright with AutoHeal?
-
-Playwright's native locators (`get_by_role`, `get_by_text`, `get_by_placeholder`) are already more resilient than CSS/XPath. AutoHeal adds another layer — if even the semantic locator fails, the AI heals it.
-
-**Playwright also offers zero-rewrite migration**: you pass native `Locator` objects directly to AutoHeal without changing how you write selectors.
-
-### Planned API — Native Playwright Locators
-
-```python
-from playwright.sync_api import sync_playwright
-from autoheal import AutoHealLocator
-from autoheal.impl.adapter import PlaywrightWebAutomationAdapter  # coming soon
-
-with sync_playwright() as p:
-    browser = p.chromium.launch()
-    page = browser.new_page()
-
-    adapter = PlaywrightWebAutomationAdapter(page)
-    locator = AutoHealLocator.builder().with_web_adapter(adapter).build()
-
-    page.goto("https://example.com/login")
-
-    # Pass native Playwright locators directly — AutoHeal wraps them
-    username = locator.find(page.get_by_placeholder("Username"), "Username field")
-    password = locator.find(page.get_by_placeholder("Password"), "Password field")
-    submit   = locator.find(page.get_by_role("button", name="Login"), "Login button")
-
-    username.fill("standard_user")
-    password.fill("secret_sauce")
-    submit.click()
+```bash
+pip install autoheal-locator[playwright]
+playwright install chromium
 ```
 
-### Planned API — Semantic Locator Types
+### 2. Usage
+
+AutoHeal for Playwright is fully async. It supports both CSS string selectors and native Playwright Locators:
 
 ```python
-# Role-based (most resilient)
-locator.find(page.get_by_role("button", name="Submit"), "Submit button")
-locator.find(page.get_by_role("textbox", name="Username"), "Username field")
-locator.find(page.get_by_role("link", name="Forgot password?"), "Forgot password link")
-
-# Text-based
-locator.find(page.get_by_text("Welcome back"), "Welcome message")
-locator.find(page.get_by_text("Add to cart", exact=True), "Add to cart button")
-
-# Placeholder
-locator.find(page.get_by_placeholder("Email address"), "Email input")
-
-# Test ID
-locator.find(page.get_by_test_id("submit-btn"), "Submit button")
-
-# Label
-locator.find(page.get_by_label("Email"), "Email input")
-
-# CSS / XPath still work
-locator.find(page.locator("#submit-btn"), "Submit button")
-locator.find(page.locator("//button[@type='submit']"), "Submit button")
-```
-
-### Planned API — Filtered Locators
-
-Playwright's filter chaining is fully supported:
-
-```python
-# Find a specific product's "Add to cart" button
-product_btn = locator.find(
-    page.get_by_role("listitem")
-        .filter(has_text="Sauce Labs Backpack")
-        .get_by_role("button"),
-    "Add to cart button for Sauce Labs Backpack"
-)
-product_btn.click()
-
-# Filter with multiple conditions
-in_stock_item = locator.find(
-    page.get_by_role("listitem")
-        .filter(has_text="In stock")
-        .filter(has_not_text="Out of stock"),
-    "In stock product item"
-)
-```
-
-### Planned API — Async Playwright
-
-```python
-import asyncio
+import pytest
 from playwright.async_api import async_playwright
+from autoheal.impl.adapter import PlaywrightWebAutomationAdapter
+from autoheal.reporting.reporting_autoheal_locator import ReportingAutoHealLocator
 
-async def test_login_playwright():
+# Using a broken CSS selector — AI heals it
+async def test_heal_broken_selector(page, autoheal_locator):
+    await page.goto("https://www.saucedemo.com")
+
+    username = await autoheal_locator.find_element_async(
+        "#user-name-BROKEN",
+        "Username input field on the SauceDemo login page"
+    )
+    await username.fill("standard_user")
+    assert await username.input_value() == "standard_user"
+
+
+# Using a broken native Playwright Locator — AI heals it
+async def test_heal_broken_native_locator(page, autoheal_locator):
+    await page.goto("https://www.saucedemo.com")
+
+    username = await autoheal_locator.find_async(
+        page.get_by_role("textbox", name="Username-BROKEN"),
+        "Username input field on the SauceDemo login page"
+    )
+    await username.fill("standard_user")
+    assert await username.input_value() == "standard_user"
+```
+
+### 3. pytest Fixture
+
+```python
+import pytest
+from playwright.async_api import async_playwright
+from autoheal.impl.adapter import PlaywrightWebAutomationAdapter
+from autoheal.reporting.reporting_autoheal_locator import ReportingAutoHealLocator
+from config.autoheal_config import get_autoheal_config
+
+
+@pytest.fixture(scope="function")
+async def browser():
     async with async_playwright() as p:
-        browser = await p.chromium.launch()
-        page = await browser.new_page()
-
-        adapter = PlaywrightWebAutomationAdapter(page)
-        locator = AutoHealLocator.builder().with_web_adapter(adapter).build()
-
-        await page.goto("https://example.com/login")
-
-        username = await locator.find_async(
-            page.get_by_placeholder("Username"), "Username field"
-        )
-        await username.fill("admin")
-
-        submit = await locator.find_async(
-            page.get_by_role("button", name="Login"), "Login button"
-        )
-        await submit.click()
-
+        browser = await p.chromium.launch(headless=True)
+        yield browser
         await browser.close()
 
-asyncio.run(test_login_playwright())
+
+@pytest.fixture(scope="function")
+async def page(browser):
+    page = await browser.new_page()
+    yield page
+    await page.close()
+
+
+@pytest.fixture(scope="function")
+def autoheal_locator(page):
+    config = get_autoheal_config()
+    adapter = PlaywrightWebAutomationAdapter(page)
+    locator = ReportingAutoHealLocator(adapter, config)
+    yield locator
+    locator.shutdown()  # generates HTML/JSON/text reports
+```
+
+### 4. Native Locator Types Supported
+
+```python
+# Role-based
+await autoheal_locator.find_async(page.get_by_role("button", name="Login"), "Login button")
+await autoheal_locator.find_async(page.get_by_role("textbox", name="Username"), "Username field")
+
+# Text-based
+await autoheal_locator.find_async(page.get_by_text("Add to cart", exact=True), "Add to cart button")
+
+# Placeholder
+await autoheal_locator.find_async(page.get_by_placeholder("Email address"), "Email input")
+
+# CSS / XPath
+await autoheal_locator.find_async(page.locator("#submit-btn"), "Submit button")
+
+# CSS string shorthand
+await autoheal_locator.find_element_async("#submit-btn", "Submit button")
 ```
 
 ---
 
 ## AI Provider Configuration
 
-Configure **one provider only**. AutoHeal auto-detects which one is active based on which environment variable is set.
+Configure **one provider only**. AutoHeal detects which one to use based on which environment variable is set.
 
-### Option 1 — Groq (Free, Fastest)
+### Groq — Free, Recommended for Getting Started
 
 ```bash
-# .env
 GROQ_API_KEY=gsk_your_api_key_here
-GROQ_MODEL=llama-3.3-70b-versatile    # optional, this is the default
+GROQ_MODEL=llama-3.3-70b-versatile    # optional
 ```
 
-Get a free key at [console.groq.com](https://console.groq.com) — no credit card required.
+Get a free key at [console.groq.com](https://console.groq.com).
 
-**Visual analysis models for Groq:**
-```bash
-GROQ_MODEL=llama-3.2-11b-vision-preview   # use for VISUAL_FIRST strategy
-```
-
-### Option 2 — Google Gemini
+### Google Gemini
 
 ```bash
-# .env
 GEMINI_API_KEY=AIza_your_api_key_here
-GEMINI_MODEL=gemini-2.0-flash              # optional
+GEMINI_MODEL=gemini-2.0-flash          # optional
 ```
 
-Get a key at [makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey).
+> Free tier has rate limits. Use `DOM_ONLY` or `SMART_SEQUENTIAL` strategy to reduce API calls.
 
-> **Note:** Gemini free tier has rate limits that may cause 429 errors during rapid visual analysis. Use `SMART_SEQUENTIAL` or `DOM_ONLY` strategy to reduce API calls.
-
-### Option 3 — OpenAI
+### OpenAI
 
 ```bash
-# .env
-OPENAI_API_KEY=sk-proj-your_api_key_here
-OPENAI_MODEL=gpt-4o                        # optional, gpt-4o-mini is cheaper
+OPENAI_API_KEY=sk-proj-your_key
+OPENAI_MODEL=gpt-4o-mini               # optional — gpt-4o-mini is cheapest
 ```
 
-Get a key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
-
-Models with visual analysis support: `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`.
-
-### Option 4 — Anthropic Claude
+### Local LLM — Ollama / LM Studio (Free, Private)
 
 ```bash
-# .env — use via OpenAI-compatible proxy (e.g. LiteLLM)
-AUTOHEAL_API_URL=http://localhost:4000/v1/chat/completions
-AUTOHEAL_MODEL=claude-3-5-sonnet-20241022
-AUTOHEAL_API_KEY=your_litellm_key
-```
-
-Get a key at [console.anthropic.com](https://console.anthropic.com).
-
-> Claude does not have a native OpenAI-compatible endpoint. Use [LiteLLM](https://docs.litellm.ai/) as a proxy.
-
-### Option 5 — DeepSeek
-
-```bash
-# .env
-AUTOHEAL_API_URL=https://api.deepseek.com/v1/chat/completions
-AUTOHEAL_MODEL=deepseek-chat
-AUTOHEAL_API_KEY=your_deepseek_api_key
-```
-
-Get a key at [platform.deepseek.com](https://platform.deepseek.com).
-
-### Option 6 — Local LLM (Ollama / LM Studio)
-
-No API key needed — completely free and private.
-
-```bash
-# .env — Ollama (https://ollama.ai)
-# First pull a model: ollama pull deepseek-coder-v2:16b
+# Ollama
 AUTOHEAL_API_URL=http://localhost:11434/v1/chat/completions
 AUTOHEAL_MODEL=deepseek-coder-v2:16b
 AUTOHEAL_API_KEY=not-needed
 
-# .env — LM Studio (https://lmstudio.ai)
+# LM Studio
 AUTOHEAL_API_URL=http://localhost:1234/v1/chat/completions
 AUTOHEAL_MODEL=your-loaded-model-name
-AUTOHEAL_API_KEY=not-needed
-
-# .env — Cloudflare tunnel (remote Ollama)
-AUTOHEAL_API_URL=https://your-tunnel.trycloudflare.com/v1/chat/completions
-AUTOHEAL_MODEL=deepseek-coder-v2:16b
 AUTOHEAL_API_KEY=not-needed
 ```
 
@@ -533,9 +393,9 @@ AUTOHEAL_API_KEY=not-needed
 | **Groq** | Yes | Free | Fastest | Best for getting started |
 | **Gemini** | Yes | Low | Fast | Free tier has rate limits |
 | **OpenAI** | Yes | Medium | Fast | gpt-4o-mini is cost-effective |
-| **Anthropic** | Yes | Medium | Medium | Requires proxy |
-| **DeepSeek** | No | Low | Fast | Great for DOM-only use |
-| **Local (Ollama)** | Depends | Free | Varies | Private, no data sent to cloud |
+| **Anthropic** | Yes | Medium | Medium | Requires LiteLLM proxy |
+| **DeepSeek** | No | Low | Fast | Good for DOM-only use |
+| **Ollama** | Depends | Free | Varies | Private, no data sent externally |
 
 ### Programmatic Configuration
 
@@ -555,147 +415,56 @@ ai_config = AIConfig.builder() \
 
 ## Execution Strategies
 
-The execution strategy controls how AutoHeal heals a broken selector. Set via `.env` or in code.
-
 ```bash
 # .env
 AUTOHEAL_EXECUTION_STRATEGY=SMART_SEQUENTIAL
 ```
 
-### SMART_SEQUENTIAL (Recommended — Default)
-
-Tries DOM analysis first (cheap). Only uses visual if DOM fails.
-
-```python
-.execution_strategy(ExecutionStrategy.SMART_SEQUENTIAL)
-```
-
-**Cost:** Low | **Speed:** Medium | **Best for:** Production, CI/CD
-
-### DOM_ONLY
-
-Skips visual entirely. Fastest and cheapest.
-
-```python
-.execution_strategy(ExecutionStrategy.DOM_ONLY)
-```
-
-**Cost:** Lowest | **Speed:** Fastest | **Best for:** Simple UIs, cost-sensitive pipelines
-
-### VISUAL_FIRST
-
-Takes a screenshot and asks the AI to identify the element visually. Falls back to DOM if visual fails.
-
-```python
-.execution_strategy(ExecutionStrategy.VISUAL_FIRST)
-```
-
-**Cost:** High | **Speed:** Medium | **Best for:** Complex UIs where DOM structure is unreliable
-
-> **Important:** Visual analysis is only as accurate as what the AI can infer from the screenshot. It cannot see actual HTML attribute values (e.g. it may guess `#username` when the real ID is `#user-name`). DOM analysis is more precise for attribute-based selectors.
-
-### SEQUENTIAL
-
-Tries each registered locator strategy in order until one succeeds.
-
-```python
-.execution_strategy(ExecutionStrategy.SEQUENTIAL)
-```
-
-**Cost:** Medium | **Speed:** Medium | **Best for:** Debugging, understanding which strategy works
-
-### PARALLEL
-
-Runs DOM and visual simultaneously. Uses the first successful result.
-
-```python
-.execution_strategy(ExecutionStrategy.PARALLEL)
-```
-
-**Cost:** Highest | **Speed:** Fastest healing | **Best for:** Time-critical scenarios
+| Strategy | Cost | Speed | Best For |
+|----------|------|-------|----------|
+| `SMART_SEQUENTIAL` | Low | Medium | Default — DOM first, visual fallback |
+| `DOM_ONLY` | Lowest | Fastest | CI/CD, cost-sensitive |
+| `VISUAL_FIRST` | High | Medium | Complex UIs where DOM structure unreliable |
+| `SEQUENTIAL` | Medium | Medium | Debugging |
+| `PARALLEL` | Highest | Fastest healing | Speed-critical scenarios |
 
 ---
 
 ## Cache Configuration
-
-Caching avoids repeat AI calls for selectors that have already been healed. Once healed, the fixed selector is cached and reused on subsequent runs.
-
-### PERSISTENT_FILE (Default)
-
-Saves to disk. Survives test restarts. File-locked for parallel safety.
 
 ```python
 from autoheal.config import CacheConfig
 from autoheal.config.cache_config import CacheType
 from datetime import timedelta
 
+# Persistent file (default) — survives restarts
 cache_config = CacheConfig.builder() \
     .cache_type(CacheType.PERSISTENT_FILE) \
     .maximum_size(500) \
     .expire_after_write(timedelta(hours=24)) \
     .build()
-```
 
-**Best for:** Up to 10 parallel workers, local development, pipelines where healing results should persist.
-
-### CAFFEINE (In-Memory)
-
-Pure in-memory cache. Fastest. Lost when the process ends.
-
-```python
+# In-memory — fastest, lost when process ends
 cache_config = CacheConfig.builder() \
     .cache_type(CacheType.CAFFEINE) \
     .maximum_size(1000) \
-    .expire_after_write(timedelta(hours=24)) \
     .build()
-```
 
-**Best for:** More than 10 parallel workers, single CI runs, throwaway environments.
-
-### REDIS (Distributed)
-
-Shared across all workers and machines. Requires a Redis server.
-
-```python
+# Redis — shared across machines
 cache_config = CacheConfig.builder() \
     .cache_type(CacheType.REDIS) \
     .redis_host("localhost") \
     .redis_port(6379) \
-    .redis_password(None)  # set if auth required
-    .maximum_size(10000) \
-    .expire_after_write(timedelta(days=7)) \
     .build()
-```
-
-**Best for:** 50+ parallel workers, distributed test grids, shared CI infrastructure.
-
-### Cache Management API
-
-```python
-# Clear all cached selectors
-locator.clear_cache()
-
-# Remove one specific entry
-locator.remove_cached_selector("#old-btn", "Submit button")
-
-# Check how many entries are cached
-print(locator.get_cache_size())
-
-# Inspect hit/miss statistics
-metrics = locator.get_cache_metrics()
-print(f"Hit rate  : {metrics.total_hits / (metrics.total_hits + metrics.total_misses):.0%}")
-print(f"Total hits: {metrics.total_hits}")
-print(f"Misses    : {metrics.total_misses}")
 ```
 
 ### Cache Strategy via YAML
 
-If you prefer file-based config, create `config/cache_strategy.yaml`:
+Create `config/cache_strategy.yaml`:
 
 ```yaml
 cache:
-  # Options: PERSISTENT_FILE, CAFFEINE, REDIS
-  type: PERSISTENT_FILE
+  type: PERSISTENT_FILE     # PERSISTENT_FILE | CAFFEINE | REDIS
   maximum_size: 500
   expire_after_hours: 24
 
@@ -706,15 +475,25 @@ cache:
     password: null
 ```
 
+### Cache Management
+
+```python
+locator.clear_cache()
+locator.remove_cached_selector("#old-btn", "Submit button")
+print(locator.get_cache_size())
+
+metrics = locator.get_cache_metrics()
+print(f"Hit rate: {metrics.total_hits / (metrics.total_hits + metrics.total_misses):.0%}")
+```
+
 ---
 
 ## Performance Configuration
 
 ```bash
 # .env
-AUTOHEAL_QUICK_TIMEOUT_MS=500     # How long to try original selector before checking cache
-AUTOHEAL_ELEMENT_TIMEOUT_SEC=10   # Max time to spend finding an element
-AUTOHEAL_IMPLICIT_WAIT_SEC=10     # Selenium implicit wait (should match your WebDriver setting)
+AUTOHEAL_QUICK_TIMEOUT_MS=500     # timeout to try original selector before healing
+AUTOHEAL_ELEMENT_TIMEOUT_SEC=10   # max time per element lookup
 ```
 
 ```python
@@ -733,30 +512,22 @@ perf_config = PerformanceConfig.builder() \
 
 ## Reporting
 
-AutoHeal generates HTML, JSON, and text reports at the end of each test session.
-
 ```python
 from autoheal.config import ReportingConfig
+from pathlib import Path
 
 reporting_config = ReportingConfig.builder() \
     .enabled(True) \
     .generate_html(True) \
     .generate_json(True) \
     .generate_text(True) \
-    .output_directory("./autoheal-reports") \
-    .report_name_prefix("MyProject_AutoHeal") \
+    .output_directory(str(Path(__file__).parent.parent / "autoheal-reports")) \
+    .report_name_prefix("MyProject") \
     .console_logging(True) \
     .build()
 ```
 
-**Report contents:**
-- Healing history (original selector → healed selector)
-- Success and failure counts per element
-- Token usage per AI call
-- Cache hit/miss statistics
-- Per-strategy breakdown (DOM Healed, Visual, Cached)
-
-### Healing Status in Console
+**Console output during test run:**
 
 ```
 [SUCCESS] [DOM]    [1250ms] [820 tokens]  #user-name-wrong  ->  #user-name
@@ -769,7 +540,7 @@ reporting_config = ReportingConfig.builder() \
 
 ## pytest Integration
 
-### conftest.py Setup
+### conftest.py — Selenium
 
 ```python
 import pytest
@@ -779,11 +550,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from dotenv import load_dotenv
-
 from autoheal import AutoHealLocator
 from autoheal.impl.adapter import SeleniumWebAutomationAdapter
 from autoheal.reporting.reporting_autoheal_locator import ReportingAutoHealLocator
-from config.autoheal_config import get_autoheal_config
 
 load_dotenv(Path(__file__).parent / ".env")
 
@@ -792,8 +561,6 @@ load_dotenv(Path(__file__).parent / ".env")
 def driver():
     options = Options()
     options.add_argument("--start-maximized")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
     service = Service(ChromeDriverManager().install())
     d = webdriver.Chrome(service=service, options=options)
     d.implicitly_wait(10)
@@ -803,23 +570,52 @@ def driver():
 
 @pytest.fixture(scope="function")
 def autoheal(driver):
-    config = get_autoheal_config()
+    from config.autoheal_config import get_autoheal_config
     adapter = SeleniumWebAutomationAdapter(driver)
-    locator = ReportingAutoHealLocator(adapter, config)
+    locator = ReportingAutoHealLocator(adapter, get_autoheal_config())
     yield locator
-
     metrics = locator.autoheal.get_metrics()
-    cache_metrics = locator.autoheal.get_cache_metrics()
     print(f"\nAutoHeal: {metrics.successful_requests}/{metrics.total_requests} healed")
-    print(f"Cache   : {cache_metrics.total_hits} hits, {cache_metrics.total_misses} misses")
+```
+
+### conftest.py — Playwright
+
+```python
+import pytest
+from playwright.async_api import async_playwright
+from autoheal.impl.adapter import PlaywrightWebAutomationAdapter
+from autoheal.reporting.reporting_autoheal_locator import ReportingAutoHealLocator
+
+
+@pytest.fixture(scope="function")
+async def browser():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        yield browser
+        await browser.close()
+
+
+@pytest.fixture(scope="function")
+async def page(browser):
+    page = await browser.new_page()
+    yield page
+    await page.close()
+
+
+@pytest.fixture(scope="function")
+def autoheal_locator(page):
+    from config.autoheal_config import get_autoheal_config
+    adapter = PlaywrightWebAutomationAdapter(page)
+    locator = ReportingAutoHealLocator(adapter, get_autoheal_config())
+    yield locator
+    locator.shutdown()
 ```
 
 ### config/autoheal_config.py
 
-Centralise your configuration here so all tests share the same setup:
-
 ```python
 import os
+from pathlib import Path
 from datetime import timedelta
 from autoheal import AutoHealConfiguration
 from autoheal.config import AIConfig, CacheConfig, PerformanceConfig, ResilienceConfig, ReportingConfig
@@ -827,53 +623,38 @@ from autoheal.config.cache_config import CacheType
 from autoheal.models.enums import AIProvider, ExecutionStrategy
 
 
-def get_ai_config() -> AIConfig:
-    """
-    Auto-detect the configured AI provider from environment variables.
-    Only ONE provider should be configured at a time.
-    """
+def get_autoheal_config() -> AutoHealConfiguration:
+    # Auto-detect AI provider from env vars
     if os.getenv("GROQ_API_KEY"):
-        return AIConfig.builder() \
+        ai = AIConfig.builder() \
             .provider(AIProvider.GROQ) \
             .api_key(os.getenv("GROQ_API_KEY")) \
             .api_url("https://api.groq.com/openai/v1/chat/completions") \
             .model(os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")) \
-            .temperature_dom(0.1) \
             .build()
-
-    if os.getenv("GEMINI_API_KEY"):
-        return AIConfig.builder() \
+    elif os.getenv("GEMINI_API_KEY"):
+        ai = AIConfig.builder() \
             .provider(AIProvider.GOOGLE_GEMINI) \
             .api_key(os.getenv("GEMINI_API_KEY")) \
             .model(os.getenv("GEMINI_MODEL", "gemini-2.0-flash")) \
-            .temperature_dom(0.1) \
             .build()
-
-    if os.getenv("OPENAI_API_KEY"):
-        return AIConfig.builder() \
+    elif os.getenv("OPENAI_API_KEY"):
+        ai = AIConfig.builder() \
             .provider(AIProvider.OPENAI) \
             .api_key(os.getenv("OPENAI_API_KEY")) \
             .api_url("https://api.openai.com/v1/chat/completions") \
             .model(os.getenv("OPENAI_MODEL", "gpt-4o-mini")) \
-            .temperature_dom(0.1) \
             .build()
-
-    if os.getenv("AUTOHEAL_API_URL"):
-        return AIConfig.builder() \
+    elif os.getenv("AUTOHEAL_API_URL"):
+        ai = AIConfig.builder() \
             .provider(AIProvider.OPENAI) \
             .api_key(os.getenv("AUTOHEAL_API_KEY", "not-needed")) \
             .api_url(os.getenv("AUTOHEAL_API_URL")) \
             .model(os.getenv("AUTOHEAL_MODEL", "deepseek-coder-v2:16b")) \
-            .temperature_dom(0.1) \
             .build()
+    else:
+        raise ValueError("No AI provider configured. Set one of: GROQ_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY")
 
-    raise ValueError(
-        "No AI provider configured. Set one of: GROQ_API_KEY, GEMINI_API_KEY, "
-        "OPENAI_API_KEY, or AUTOHEAL_API_URL in your .env file."
-    )
-
-
-def get_autoheal_config() -> AutoHealConfiguration:
     strategy_map = {
         "SMART_SEQUENTIAL": ExecutionStrategy.SMART_SEQUENTIAL,
         "DOM_ONLY":         ExecutionStrategy.DOM_ONLY,
@@ -886,24 +667,22 @@ def get_autoheal_config() -> AutoHealConfiguration:
         ExecutionStrategy.SMART_SEQUENTIAL
     )
 
+    project_root = Path(__file__).parent.parent
+
     return AutoHealConfiguration.builder() \
-        .ai(get_ai_config()) \
+        .ai(ai) \
         .cache(
             CacheConfig.builder()
                 .cache_type(CacheType.PERSISTENT_FILE)
-                .maximum_size(int(os.getenv("AUTOHEAL_CACHE_MAX_SIZE", "500")))
+                .maximum_size(500)
                 .expire_after_write(timedelta(hours=24))
                 .build()
         ) \
         .performance(
             PerformanceConfig.builder()
                 .execution_strategy(strategy)
-                .quick_check_timeout(timedelta(
-                    milliseconds=int(os.getenv("AUTOHEAL_QUICK_TIMEOUT_MS", "500"))
-                ))
-                .element_timeout(timedelta(
-                    seconds=int(os.getenv("AUTOHEAL_ELEMENT_TIMEOUT_SEC", "10"))
-                ))
+                .quick_check_timeout(timedelta(milliseconds=500))
+                .element_timeout(timedelta(seconds=10))
                 .build()
         ) \
         .resilience(ResilienceConfig.builder().retry_max_attempts(3).build()) \
@@ -913,45 +692,12 @@ def get_autoheal_config() -> AutoHealConfiguration:
                 .generate_html(True)
                 .generate_json(True)
                 .generate_text(True)
-                .output_directory("./autoheal-reports")
+                .output_directory(str(project_root / "autoheal-reports"))
                 .report_name_prefix("AutoHeal")
                 .console_logging(True)
                 .build()
         ) \
         .build()
-```
-
-### Writing Tests
-
-```python
-def test_login(driver, autoheal):
-    driver.get("https://www.saucedemo.com")
-
-    # Use correct selectors — AutoHeal heals them if they break
-    username = autoheal.find_element("#user-name", "Username field")
-    password = autoheal.find_element("#password", "Password field")
-    submit   = autoheal.find_element("#login-button", "Login button")
-
-    username.send_keys("standard_user")
-    password.send_keys("secret_sauce")
-    submit.click()
-
-    assert "/inventory.html" in driver.current_url
-
-
-def test_login_healed(driver, autoheal):
-    driver.get("https://www.saucedemo.com")
-
-    # Intentionally wrong selectors — AutoHeal will find the right elements
-    username = autoheal.find_element("#user-name-wrong", "Username field")
-    password = autoheal.find_element("#password-wrong", "Password field")
-    submit   = autoheal.find_element("#login-button-wrong", "Login button")
-
-    username.send_keys("standard_user")
-    password.send_keys("secret_sauce")
-    submit.click()
-
-    assert "/inventory.html" in driver.current_url
 ```
 
 ---
@@ -961,272 +707,131 @@ def test_login_healed(driver, autoheal):
 ### .env File
 
 ```bash
-# =============================================================================
 # AI Provider — configure ONLY ONE
-# =============================================================================
-
-# Groq (free)
 GROQ_API_KEY=gsk_your_key
 GROQ_MODEL=llama-3.3-70b-versatile
 
-# Google Gemini
 # GEMINI_API_KEY=AIza_your_key
 # GEMINI_MODEL=gemini-2.0-flash
 
-# OpenAI
 # OPENAI_API_KEY=sk-proj-your_key
 # OPENAI_MODEL=gpt-4o-mini
 
-# Local / Custom (Ollama, LM Studio, DeepSeek, etc.)
 # AUTOHEAL_API_URL=http://localhost:11434/v1/chat/completions
 # AUTOHEAL_MODEL=deepseek-coder-v2:16b
 # AUTOHEAL_API_KEY=not-needed
 
-# =============================================================================
 # Execution Strategy
-# =============================================================================
 # Options: SMART_SEQUENTIAL | DOM_ONLY | VISUAL_FIRST | SEQUENTIAL | PARALLEL
 AUTOHEAL_EXECUTION_STRATEGY=SMART_SEQUENTIAL
 
-# =============================================================================
 # Performance
-# =============================================================================
-AUTOHEAL_QUICK_TIMEOUT_MS=500      # ms — timeout for original selector check
-AUTOHEAL_ELEMENT_TIMEOUT_SEC=10    # s  — max time per element lookup
-AUTOHEAL_IMPLICIT_WAIT_SEC=10      # s  — should match driver.implicitly_wait()
-
-# =============================================================================
-# Cache (settings in config/cache_strategy.yaml)
-# =============================================================================
-AUTOHEAL_CACHE_MAX_SIZE=500        # max number of cached entries
-
-# =============================================================================
-# Debug
-# =============================================================================
-# AUTOHEAL_DEBUG=true
+AUTOHEAL_QUICK_TIMEOUT_MS=500
+AUTOHEAL_ELEMENT_TIMEOUT_SEC=10
 ```
 
-### AutoHealConfiguration Builder Methods
+### Builder Reference
 
-| Method | Accepts | Purpose |
-|--------|---------|---------|
-| `.ai(config)` | `AIConfig` | Set AI provider and model |
-| `.cache(config)` | `CacheConfig` | Set cache backend and TTL |
-| `.performance(config)` | `PerformanceConfig` | Set strategy and timeouts |
-| `.resilience(config)` | `ResilienceConfig` | Set retry attempts |
-| `.reporting(config)` | `ReportingConfig` | Set report output options |
-| `.build()` | — | Build the configuration |
-
-### AIConfig Builder Methods
-
-| Method | Default | Purpose |
-|--------|---------|---------|
-| `.provider(AIProvider.X)` | — | Required. Which AI provider to use |
-| `.api_key(str)` | — | API authentication key |
-| `.api_url(str)` | Provider default | Override API endpoint |
-| `.model(str)` | Provider default | Model name |
-| `.temperature_dom(float)` | `0.1` | Temperature for DOM analysis |
-| `.temperature_visual(float)` | `0.0` | Temperature for visual analysis |
-| `.timeout(int)` | `30` | Request timeout in seconds |
-
-### PerformanceConfig Builder Methods
-
-| Method | Default | Purpose |
-|--------|---------|---------|
-| `.execution_strategy(ExecutionStrategy.X)` | `SMART_SEQUENTIAL` | Healing strategy |
-| `.quick_check_timeout(timedelta)` | `500ms` | Timeout for original selector |
-| `.element_timeout(timedelta)` | `10s` | Full element lookup timeout |
-
-### CacheConfig Builder Methods
-
-| Method | Default | Purpose |
-|--------|---------|---------|
-| `.cache_type(CacheType.X)` | `PERSISTENT_FILE` | Cache backend |
-| `.maximum_size(int)` | `500` | Max cached entries |
-| `.expire_after_write(timedelta)` | `24h` | TTL after write |
-| `.redis_host(str)` | `localhost` | Redis host (REDIS only) |
-| `.redis_port(int)` | `6379` | Redis port (REDIS only) |
-| `.redis_password(str)` | `None` | Redis password (REDIS only) |
+| Builder | Method | Default | Purpose |
+|---------|--------|---------|---------|
+| `AIConfig` | `.provider(AIProvider.X)` | — | Required |
+| `AIConfig` | `.api_key(str)` | — | Required |
+| `AIConfig` | `.model(str)` | Provider default | Model name |
+| `AIConfig` | `.temperature_dom(float)` | `0.1` | DOM analysis temperature |
+| `CacheConfig` | `.cache_type(CacheType.X)` | `PERSISTENT_FILE` | Cache backend |
+| `CacheConfig` | `.maximum_size(int)` | `500` | Max cached entries |
+| `CacheConfig` | `.expire_after_write(timedelta)` | `24h` | TTL |
+| `PerformanceConfig` | `.execution_strategy(X)` | `SMART_SEQUENTIAL` | Healing strategy |
+| `PerformanceConfig` | `.quick_check_timeout(timedelta)` | `500ms` | Original selector timeout |
+| `PerformanceConfig` | `.element_timeout(timedelta)` | `10s` | Full lookup timeout |
 
 ---
 
 ## API Reference
 
-### AutoHealLocator Methods
-
-#### Finding Elements
-
 ```python
-# Find a single element (sync)
+# Find single element (sync)
 element = locator.find_element(selector, description)
 
-# Find a single element (async)
+# Find single element (async)
 element = await locator.find_element_async(selector, description)
 
-# Find element and return detailed result
-result = locator.find_element_with_result(selector, description)
-print(result.healing_type)   # "DOM", "VISUAL", "CACHED", "ORIGINAL"
-print(result.healed_selector)
-print(result.confidence)
+# Playwright only — pass native Locator
+element = await locator.find_async(page.get_by_role("button"), description)
 
 # Find multiple elements
 elements = locator.find_elements(selector, description)
 
-# Check element presence without raising an exception
+# Presence check — no exception if missing
 if locator.is_element_present(selector, description):
-    print("Element is on the page")
-```
+    ...
 
-#### Cache Management
+# Cache management
+locator.clear_cache()
+locator.remove_cached_selector(selector, description)
+locator.get_cache_size()
 
-```python
-locator.clear_cache()                              # clear all entries
-locator.remove_cached_selector(selector, desc)     # remove one entry
-locator.get_cache_size()                           # count of entries
-locator.cleanup_expired_cache()                    # evict stale entries
-```
-
-#### Metrics and Health
-
-```python
+# Metrics
 metrics = locator.get_metrics()
-print(metrics.total_requests)
-print(metrics.successful_requests)
-
 cache = locator.get_cache_metrics()
-print(cache.total_hits)
-print(cache.total_misses)
-
 health = locator.get_health_status()
-print(health["overall"])       # True = healthy
-print(health["success_rate"])
-print(health["cache_hit_rate"])
-```
 
-#### Lifecycle
-
-```python
-# Graceful shutdown — flush cache, close connections
+# Shutdown — flush cache, close connections, generate reports
 locator.shutdown()
-
-# Or async
-await locator.shutdown()
+await locator.shutdown()  # async version
 ```
 
 ---
 
 ## Best Practices
 
-### 1. Always Use Descriptive Element Names
-
-The description is passed to the AI when healing is needed. The more specific it is, the better the AI's suggestion will be.
+**Use descriptive element names** — the description is sent to the AI when healing is needed:
 
 ```python
-# Too vague — AI has nothing to work with
+# Vague — AI has little context
 locator.find_element("#btn-1", "button")
 
-# Clear and specific — AI understands the context
+# Specific — AI understands exactly what to find
 locator.find_element("#btn-1", "Submit payment button on checkout page")
 ```
 
-### 2. Match Strategy to Use Case
+**Match strategy to environment:**
 
-```python
-# CI/CD — cost-effective, fast
-AUTOHEAL_EXECUTION_STRATEGY=SMART_SEQUENTIAL
-
-# Local development — skip AI entirely for green tests
-AUTOHEAL_EXECUTION_STRATEGY=DOM_ONLY
-
-# Highly visual UIs — screenshots help more than raw HTML
-AUTOHEAL_EXECUTION_STRATEGY=VISUAL_FIRST
+```bash
+SMART_SEQUENTIAL  # production and CI — cost-effective
+DOM_ONLY          # local dev when you want fast runs
+VISUAL_FIRST      # highly visual UIs where DOM structure is unreliable
 ```
 
-### 3. Use Cache in Long-Running Suites
-
-Enable `PERSISTENT_FILE` cache so healed selectors are reused across runs. This eliminates redundant AI calls for the same broken selectors.
-
-### 4. Use Async for Parallel Tests
+**Use absolute paths for reports** so they always land in the project root regardless of where pytest is run from:
 
 ```python
-import asyncio
-
-async def test_login_async(driver, autoheal):
-    driver.get("https://example.com")
-    username = await autoheal.find_element_async("#user", "Username field")
-    password = await autoheal.find_element_async("#pass", "Password field")
-    username.send_keys("admin")
-    password.send_keys("secret")
+.output_directory(str(Path(__file__).parent.parent / "autoheal-reports"))
 ```
 
-### 5. Scope the Driver Fixture to `function`
-
-Each test should get its own driver and autoheal instance. Sharing state between tests leads to unexpected cache collisions.
-
-```python
-@pytest.fixture(scope="function")   # not "session" or "module"
-def driver():
-    ...
-```
+**Scope fixtures to `function`** — each test should get its own driver and locator instance to avoid cache collisions between tests.
 
 ---
 
 ## Troubleshooting
 
-### No AI provider configured
+**`No AI provider configured`**
+Set exactly one API key in your `.env`. See [AI Provider Configuration](#ai-provider-configuration).
 
-```
-AIProviderConfigError: No AI provider configured.
-```
+**`Multiple AI providers configured`**
+Comment out all but one provider block in `.env`.
 
-Set exactly one API key in your `.env` file. See [AI Provider Configuration](#ai-provider-configuration).
+**`Gemini 404`**
+The correct Gemini base URL is `https://generativelanguage.googleapis.com/v1` — without a trailing `/models`.
 
-### Multiple AI providers configured
+**`Gemini 429 rate limited`**
+Switch to `AUTOHEAL_EXECUTION_STRATEGY=DOM_ONLY` or `SMART_SEQUENTIAL` to reduce screenshot-based calls.
 
-```
-AIProviderConfigError: Multiple AI providers configured: GEMINI, OPENAI.
-```
+**Visual analysis returns wrong selector**
+Visual AI infers selectors from screenshots — it cannot read actual HTML attributes. Use `SMART_SEQUENTIAL` so DOM analysis runs first; visual is the fallback.
 
-Comment out all but one provider block in your `.env` file.
-
-### Gemini returns 404
-
-If using Gemini and seeing `Gemini API call failed: 404`, the `ai_config.py` default URL may include a trailing `/models` which the provider already appends. The correct default base URL is:
-
-```
-https://generativelanguage.googleapis.com/v1
-```
-
-Not:
-```
-https://generativelanguage.googleapis.com/v1/models   ← wrong, causes /models/models/
-```
-
-### Gemini returns 429 (rate limited)
-
-The free Gemini tier throttles visual analysis because screenshots are large. Switch to `DOM_ONLY` or `SMART_SEQUENTIAL` to reduce API call frequency.
-
-### Visual analysis succeeds but returns wrong selectors
-
-Visual AI infers selectors from what it *sees* in the screenshot — it cannot read actual HTML attributes. It may guess `#username` when the real ID is `#user-name`. DOM analysis reads the real HTML and is more reliable for attribute-based selectors.
-
-Use `SMART_SEQUENTIAL` so DOM is tried first, with visual as fallback.
-
-### Element not found after healing
-
-```python
-# Enable debug logging to trace every step
-import logging
-logging.basicConfig(level=logging.DEBUG)
-
-# Check health
-health = locator.get_health_status()
-print(health)
-```
-
-### Cache not persisting between runs
-
-Check that `AUTOHEAL_CACHE_TYPE=PERSISTENT_FILE` (or your `cache_strategy.yaml` sets `type: PERSISTENT_FILE`). The default cache directory is `~/.autoheal/cache/`.
+**Reports landing in wrong folder**
+Use `Path(__file__).parent.parent / "autoheal-reports"` instead of `"./autoheal-reports"`. Relative paths depend on where pytest is launched from.
 
 ---
 
@@ -1235,15 +840,13 @@ Check that `AUTOHEAL_CACHE_TYPE=PERSISTENT_FILE` (or your `cache_strategy.yaml` 
 ```
 autoheal/
 ├── autoheal_locator.py          # Main AutoHealLocator class
-├── __init__.py                  # Public exports
+├── __init__.py
 ├── config/                      # AIConfig, CacheConfig, PerformanceConfig, etc.
 ├── impl/
-│   ├── adapter/                 # SeleniumWebAutomationAdapter
-│   ├── ai/
-│   │   └── providers/           # GeminiProvider, OpenAIProvider, GroqProvider, ...
+│   ├── adapter/                 # SeleniumWebAutomationAdapter, PlaywrightWebAutomationAdapter
+│   ├── ai/providers/            # GeminiProvider, OpenAIProvider, GroqProvider, ...
 │   ├── cache/                   # FileSelectorCache, RedisCache, CachetoolsCache
-│   └── locator/                 # DOMElementLocator, VisualElementLocator,
-│                                #   CostOptimizedHybridElementLocator
+│   └── locator/                 # DOMElementLocator, VisualElementLocator, HybridLocator
 ├── models/
 │   └── enums.py                 # AIProvider, ExecutionStrategy, CacheType
 ├── reporting/                   # ReportingAutoHealLocator, HTML/JSON/text reporters
@@ -1258,7 +861,11 @@ MIT License. See [LICENSE](LICENSE).
 
 ---
 
-## Acknowledgements
+## Links
 
-- Original Java implementation: [autoheal-locator](https://github.com/SanjayPG/autoheal-locator)
-- Built with Python, asyncio, aiohttp, and Pydantic
+- **PyPI**: https://pypi.org/project/autoheal-locator/
+- **GitHub**: https://github.com/SanjayPG/autoheal-locator-python
+- **Java version**: https://github.com/SanjayPG/autoheal-locator
+- **Selenium demo**: https://github.com/SanjayPG/autoheal-selenium-python-demo
+- **Playwright demo**: https://github.com/SanjayPG/playwright-autoheal-python-demo
+- **Free Groq API key**: https://console.groq.com
