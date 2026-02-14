@@ -287,6 +287,9 @@ class FileSelectorCache(SelectorCache):
         # Track access times for expire_after_access support
         self._access_times: Dict[str, float] = {}
 
+        # Track the latest async save thread so shutdown can wait for it
+        self._pending_save_thread: Optional[threading.Thread] = None
+
         # Initialize cache
         self._create_cache_directory()
         self._load_cache_from_file()
@@ -574,39 +577,68 @@ class FileSelectorCache(SelectorCache):
 
     def _save_to_file_async(self) -> None:
         """Save cache to file asynchronously."""
-        # Use a separate thread to avoid blocking
-        save_thread = threading.Thread(target=self._save_cache_to_file, daemon=True)
+        # Non-daemon so the thread is not killed when the process exits
+        save_thread = threading.Thread(target=self._save_cache_to_file, daemon=False)
         save_thread.start()
+        # Track the thread so the shutdown hook can join it
+        with self._lock:
+            self._pending_save_thread = save_thread
 
     def _save_cache_to_file(self) -> None:
-        """Save cache to file with file-level locking for parallel safety."""
+        """Save cache to file with file-level locking for parallel safety.
+
+        Uses a read-merge-write strategy so that concurrent processes do not
+        overwrite each other's entries.  The sequence inside the FileLock is:
+          1. Read what is currently on disk (written by other processes).
+          2. Merge with this process's in-memory cache (this process wins on
+             conflict for keys it owns).
+          3. Write the merged result back.
+        """
         lock_file = self._cache_file_path + '.lock'
         try:
             with FileLock(lock_file, timeout=10):  # Cross-process file lock
                 with self._lock:  # Thread lock within same process
-                    # Save cache entries
-                    entries_to_save = {}
+
+                    # --- Step 1: read existing file entries ---
+                    existing_entries: dict = {}
+                    cache_file = Path(self._cache_file_path)
+                    if cache_file.exists():
+                        try:
+                            with open(self._cache_file_path, 'r', encoding='utf-8') as f:
+                                existing_entries = json.load(f)
+                        except Exception:
+                            existing_entries = {}
+
+                    existing_metrics: dict = {}
+                    metrics_file = Path(self._metrics_file_path)
+                    if metrics_file.exists():
+                        try:
+                            with open(self._metrics_file_path, 'r', encoding='utf-8') as f:
+                                existing_metrics = json.load(f)
+                        except Exception:
+                            existing_metrics = {}
+
+                    # --- Step 2: merge (this process's entries take priority) ---
+                    merged_entries = existing_entries.copy()
                     for key, cached_selector in self._memory_cache.items():
                         entry = FileCacheEntry.from_cached_selector(cached_selector)
-                        entries_to_save[key] = entry.to_dict()
+                        merged_entries[key] = entry.to_dict()
 
-                    # Write cache entries
+                    merged_metrics = existing_metrics.copy()
+                    for key, metrics in self._file_metrics.items():
+                        merged_metrics[key] = metrics.to_dict()
+
+                    # --- Step 3: write merged result ---
                     with open(self._cache_file_path, 'w', encoding='utf-8') as f:
-                        json.dump(entries_to_save, f, indent=2, ensure_ascii=False)
-
-                    # Save file metrics
-                    metrics_to_save = {
-                        key: metrics.to_dict()
-                        for key, metrics in self._file_metrics.items()
-                    }
+                        json.dump(merged_entries, f, indent=2, ensure_ascii=False)
 
                     with open(self._metrics_file_path, 'w', encoding='utf-8') as f:
-                        json.dump(metrics_to_save, f, indent=2, ensure_ascii=False)
+                        json.dump(merged_metrics, f, indent=2, ensure_ascii=False)
 
                 logger.debug(
                     "Cache saved to files: %d entries, %d metrics",
-                    len(entries_to_save),
-                    len(metrics_to_save)
+                    len(merged_entries),
+                    len(merged_metrics)
                 )
         except Exception as e:
             logger.error("Failed to save cache to file", exc_info=e)
@@ -651,8 +683,13 @@ class FileSelectorCache(SelectorCache):
     def _setup_shutdown_hook(self) -> None:
         """Setup shutdown hook to save cache."""
         def shutdown_handler():
-            logger.info("Saving cache before shutdown...")
             logger.info("Saving cache to file before shutdown...")
+            # Wait for any in-flight async save to finish before doing the
+            # final synchronous save, so we don't race with ourselves.
+            with self._lock:
+                pending = self._pending_save_thread
+            if pending is not None and pending.is_alive():
+                pending.join(timeout=15)
             self._save_cache_to_file()
 
         atexit.register(shutdown_handler)
