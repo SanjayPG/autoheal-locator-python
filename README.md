@@ -36,7 +36,7 @@ pip install autoheal-locator[all]
 
 | Project | Framework | Link |
 |---|---|---|
-| Selenium demo | Selenium + Python | [autoheal-selenium-python-demo](https://github.com/SanjayPG/autoheal-selenium-python-demo) |
+| Selenium demo | Selenium + Python | [autoheal-selenium-python-demo](https://github.com/https://github.com/SanjayPG/autoheal-selenium-demo-python) |
 | Playwright demo | Playwright + Python | [playwright-autoheal-python-demo](https://github.com/SanjayPG/playwright-autoheal-python-demo) |
 
 Both demos include a `START_HERE.md` with full step-by-step setup instructions.
