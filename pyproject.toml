@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "autoheal-locator"
-version = "1.0.10"
+version = "1.0.11"
 description = "AI-powered test automation framework that automatically heals broken element locators in Selenium and Playwright tests"
 authors = ["SanjayPG <sanjay.pg@example.com>"]
 license = "MIT"

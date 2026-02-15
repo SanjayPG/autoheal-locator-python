@@ -5,7 +5,7 @@ This package provides intelligent element location and healing capabilities for 
 Playwright test automation frameworks using AI-powered analysis.
 """
 
-__version__ = "1.0.5"
+__version__ = "1.0.11"
 __author__ = "SanjayPG"
 __license__ = "MIT"
 
@@ -20,6 +20,7 @@ from autoheal.exception.exceptions import (
     AIServiceException,
     ConfigurationException,
 )
+from autoheal.quickstart_config import get_autoheal_config
 
 __all__ = [
     # Main class
@@ -31,6 +32,7 @@ __all__ = [
     "ExecutionStrategy",
     "AIProvider",
     "LocatorStrategy",
+    "get_autoheal_config",
 
     # Exceptions
     "AutoHealException",

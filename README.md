@@ -30,6 +30,64 @@ pip install autoheal-locator[redis]
 pip install autoheal-locator[all]
 ```
 
+### Quickstart Config (Zero Setup)
+
+For the fastest way to get started, use the built-in `get_autoheal_config()`. **No config file needed!**
+
+```python
+from autoheal import get_autoheal_config
+from autoheal.impl.adapter import PlaywrightWebAutomationAdapter
+from autoheal.reporting import ReportingAutoHealLocator
+
+# Auto-detects provider from environment variables
+config = get_autoheal_config()
+adapter = PlaywrightWebAutomationAdapter(page)
+locator = ReportingAutoHealLocator(adapter, config)
+
+# Start healing broken selectors
+element = await locator.find_element_async("#broken-selector", "Submit button")
+```
+
+Just set **one** environment variable (in `.env` or shell):
+
+```bash
+# Option 1: Groq (FREE - recommended)
+GROQ_API_KEY=gsk_your_key_here
+
+# Option 2: OpenAI
+OPENAI_API_KEY=sk-your_key_here
+
+# Option 3: Google Gemini
+GEMINI_API_KEY=AIza_your_key_here
+
+# Option 4: Anthropic Claude
+ANTHROPIC_API_KEY=sk-ant-your_key_here
+
+# Option 5: DeepSeek
+DEEPSEEK_API_KEY=your_key_here
+
+# Option 6: Local Model (Ollama/LM Studio)
+AUTOHEAL_API_URL=http://localhost:11434/v1/chat/completions
+AUTOHEAL_MODEL=qwen2.5:7b
+```
+
+Optionally override the default model:
+
+```bash
+GROQ_API_KEY=gsk_your_key_here
+GROQ_MODEL=llama-3.1-8b-instant
+```
+
+### Custom Config (Optional)
+
+Need more control? Create your own `config/autoheal_config.py` to customize:
+- Cache settings (type, size, expiry)
+- Execution strategy (DOM_ONLY, VISUAL_FIRST, etc.)
+- Timeouts and retry settings
+- Report output directory
+
+See [Full Configuration Reference](#full-configuration-reference) or copy from the [demo projects](#demo-projects)
+
 ---
 
 ## Demo Projects
@@ -37,7 +95,7 @@ pip install autoheal-locator[all]
 | Project | Framework | Link |
 |---|---|---|
 | Selenium demo | Selenium + Python | [autoheal-selenium-python-demo](https://github.com/SanjayPG/autoheal-selenium-demo-python) |
-| Playwright demo | Playwright + Python | [playwright-autoheal-python-demo](https://github.com/SanjayPG/playwright-autoheal-python-demo) |
+| Playwright demo | Playwright + Python | [autoheal-playwright-demo-python](https://github.com/SanjayPG/autoheal-playwright-demo-python) |
 
 Both demos include a `START_HERE.md` with full step-by-step setup instructions.
 
@@ -867,5 +925,5 @@ MIT License. See [LICENSE](LICENSE).
 - **GitHub**: https://github.com/SanjayPG/autoheal-locator-python
 - **Java version**: https://github.com/SanjayPG/autoheal-locator
 - **Selenium demo**: https://github.com/SanjayPG/autoheal-selenium-python-demo
-- **Playwright demo**: https://github.com/SanjayPG/playwright-autoheal-python-demo
+- **Playwright demo**: https://github.com/SanjayPG/autoheal-playwright-demo-python
 - **Free Groq API key**: https://console.groq.com
