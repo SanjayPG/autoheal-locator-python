@@ -109,17 +109,19 @@ class AIConfig(BaseModel):
         Post-initialization hook to apply smart defaults.
 
         Called automatically after model initialization to set:
-        - Model name from provider default if not specified
-        - API URL from provider default if not specified
+        - Model name from AUTOHEAL_MODEL env var, then provider default if not specified
+        - API URL from AUTOHEAL_API_URL env var, then provider default if not specified
         - API key from environment variable if not specified
         """
-        # Set model from provider default if not specified
+        # Set model: explicit value > AUTOHEAL_MODEL env var > provider default
         if self.model is None:
-            self.model = self.provider.get_default_model()
+            env_model = os.getenv("AUTOHEAL_MODEL")
+            self.model = env_model.strip() if env_model and env_model.strip() else self.provider.get_default_model()
 
-        # Set API URL from provider default if not specified
+        # Set API URL: explicit value > AUTOHEAL_API_URL env var > provider default
         if self.api_url is None:
-            self.api_url = DEFAULT_API_ENDPOINTS.get(self.provider)
+            env_url = os.getenv("AUTOHEAL_API_URL")
+            self.api_url = env_url.strip() if env_url and env_url.strip() else DEFAULT_API_ENDPOINTS.get(self.provider)
 
         # Set API key from environment if not specified
         if self.api_key is None:

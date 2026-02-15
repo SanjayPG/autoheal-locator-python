@@ -516,7 +516,7 @@ CRITICAL REQUIREMENT:
 The locator MUST match EXACTLY ONE element. If multiple elements have the same text/role, you MUST use a unique identifier like ID, data-testid, or a more specific CSS selector.
 
 PRIORITY ORDER (try in this sequence, but ONLY if it matches exactly one element):
-1. getByTestId() - Test ID attribute (data-testid, data-test) - PREFERRED for unique elements
+1. getByTestId() - Use the VALUE of the data-test or data-testid attribute (NOT the id attribute) - PREFERRED
 2. css with ID - CSS selector with #id (e.g., "#secondSubmit") - VERY RELIABLE
 3. getByRole() - ARIA role with accessible name - ONLY if unique
 4. getByLabel() - Form label text associated with input
@@ -526,9 +526,11 @@ PRIORITY ORDER (try in this sequence, but ONLY if it matches exactly one element
 
 RULES:
 - MOST IMPORTANT: The locator must match exactly ONE element, not multiple
+- For getByTestId(): use the VALUE of the data-test or data-testid HTML attribute, NOT the id attribute value
+  Example: for <input id="user-name" data-test="username"> use getByTestId("username"), NOT getByTestId("user-name")
 - If description mentions "first", "second", "last" etc., find the specific element by its unique ID or data-testid
 - If multiple elements have the same text (e.g., two "Submit" buttons), use ID or data-testid instead of getByRole/getByText
-- Look for id attributes and data-testid attributes first - they are usually unique
+- Look for data-test, data-testid, and id attributes first - they are usually unique
 - Avoid locators that would match multiple elements
 
 Respond with valid JSON only:

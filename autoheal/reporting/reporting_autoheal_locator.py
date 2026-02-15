@@ -7,7 +7,7 @@ selector usage with detailed metrics and strategy information.
 
 import os
 import time
-from typing import Any, Optional
+from typing import Any, List, Optional
 
 from selenium.webdriver.remote.webelement import WebElement
 
@@ -608,6 +608,74 @@ class ReportingAutoHealLocator:
             ...     print("Error found!")
         """
         return await self.autoheal.is_element_present_async(selector, description)
+
+    async def find_elements_async(
+        self,
+        selector: str,
+        description: str,
+        options: Optional[Any] = None
+    ) -> list:
+        """
+        Find multiple elements matching a selector (async).
+
+        Note: This method does not apply healing - it returns all matching elements
+        using the original selector via the adapter. Use find_element_async for
+        single element location with healing support.
+
+        Args:
+            selector: The selector string to use.
+            description: Human-readable description of the elements.
+            options: Optional locator options.
+
+        Returns:
+            List of matching elements (may be empty).
+
+        Examples:
+            >>> items = await locator.find_elements_async(".product", "Product items")
+            >>> for item in items:
+            ...     print(await item.text_content())
+        """
+        return await self.autoheal.find_elements_async(selector, description, options)
+
+    def find_elements(
+        self,
+        selector: str,
+        description: str,
+        options: Optional[Any] = None
+    ) -> list:
+        """
+        Find multiple elements matching a selector (sync).
+
+        Note: This method does not apply healing - it returns all matching elements
+        using the original selector via the adapter. Use find_element for
+        single element location with healing support.
+
+        Args:
+            selector: The selector string to use.
+            description: Human-readable description of the elements.
+            options: Optional locator options.
+
+        Returns:
+            List of matching elements (may be empty).
+
+        Examples:
+            >>> items = locator.find_elements(".product", "Product items")
+            >>> for item in items:
+            ...     print(item.text)
+        """
+        return self.autoheal.find_elements(selector, description, options)
+
+    def get_cache_metrics(self):
+        """Get cache performance metrics."""
+        return self.autoheal.get_cache_metrics()
+
+    def get_metrics(self):
+        """Get locator performance metrics."""
+        return self.autoheal.get_metrics()
+
+    def get_health_status(self) -> dict:
+        """Get health status for monitoring."""
+        return self.autoheal.get_health_status()
 
     def clear_cache(self) -> None:
         """Clear all cached selectors."""

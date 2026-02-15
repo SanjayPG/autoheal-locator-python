@@ -282,8 +282,13 @@ class AutoHealLocator:
             .build()
 
         # Locate with healing
-        result = await self._locate_element_with_healing(request)
-        return result.element
+        try:
+            result = await self._locate_element_with_healing(request)
+            self.metrics.record_request(success=True)
+            return result.element
+        except Exception:
+            self.metrics.record_request(success=False)
+            raise
 
     async def find_element_async_with_result(
         self,
@@ -319,7 +324,13 @@ class AutoHealLocator:
             .locator_type(detected_type) \
             .build()
 
-        return await self._locate_element_with_healing(request)
+        try:
+            result = await self._locate_element_with_healing(request)
+            self.metrics.record_request(success=True)
+            return result
+        except Exception:
+            self.metrics.record_request(success=False)
+            raise
 
     def find_element(
         self,
@@ -440,8 +451,8 @@ class AutoHealLocator:
             True if element is present, False otherwise.
         """
         try:
-            await self.find_element_async(selector, description, options)
-            return True
+            elements = await self.adapter.find_elements(selector)
+            return len(elements) > 0
         except Exception:
             return False
 
